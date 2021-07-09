@@ -8,18 +8,46 @@ Original file is located at
 """
 
 import cv2
+from numpy import e
 face_cascade = cv2.CascadeClassifier(r'haarcascade_frontalface_default.xml')
+
 
 camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
 
+import csv
+import os.path
+def document(count,label1,label2):
+  header = ['sn','gender','age']
+  labels = [count,label1,label2]
+  if os.path.isfile('detection.csv'):
+    with open('detection.csv','a+',encoding='UTF8',newline='') as f:
+      writer = csv.writer(f)
+
+      #write the labels
+      writer.writerow(labels)
+  else:
+    with open('detection.csv', 'w',encoding= "UTF8",newline='') as f:
+      writer = csv.writer(f)
+
+      #write the header
+      writer.writerow(header)
+      writer.writerow(labels)    
+      
+count = 0
 while camera.isOpened():
   ret, img = camera.read()
   grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-  faces = face_cascade.detectMultiScale(grey, 1.1, 4)
-
+  faces = face_cascade.detectMultiScale(grey, 1.1, 15)
+  count += 1
+  label1 = "Bipul"
+  label2 = "ML Engineer"
+  label ="{}: {}".format(label1,label2)
   for (x, y, w, h) in faces:
-    cv2.rectangle(img, (x,y), (x+w, y+h), (255, 0, 0), 3)
-
+    cv2.rectangle(img, (x,y), (x+w, y+h), (255, 0, 0), 5)
+    cv2.putText(img,label, (x, y),  cv2.FONT_HERSHEY_SIMPLEX,
+                    0.7, (0, 255, 0), 2)
+  
+  document(count,label1,label2)
   #Display the output
   cv2.imshow('img', img)
   if cv2.waitKey(1) & 0xFF == ord('q'):
